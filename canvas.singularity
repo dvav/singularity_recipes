@@ -1,0 +1,27 @@
+BootStrap: docker
+From: ubuntu
+
+%help
+    Build like this: sudo singularity build canvas.simg canvas.singularity
+    Use like this: singularity run --bind /gpfs0,/gpfs1,/gpfs2,/well canvas.simg
+
+%post
+    apt-get -y update
+    apt-get -y install wget
+    apt-get -y install libunwind8
+    apt-get -y install libicu55
+    apt-get -y clean
+
+    cd /opt && wget https://github.com/Illumina/canvas/releases/download/1.31.0.843%2Bmaster/Canvas-1.31.0.843.master_x64.tar.gz
+    cd /opt && tar zxf Canvas-1.31.0.843.master_x64.tar.gz
+    ln -s /opt/Canvas-1.31.0.843+master_x64 /opt/canvas
+
+    mkdir -p /opt/dotnet/1.1.5
+    cd /opt/dotnet/1.1.5 && wget https://download.microsoft.com/download/C/5/5/C55807F5-601C-49B1-B9BB-1BE03EB83E0A/dotnet-dev-ubuntu.16.04-x64.1.1.5.tar.gz
+    cd /opt/dotnet/1.1.5 && tar zxf dotnet-dev-ubuntu.16.04-x64.1.1.5.tar.gz
+    ln -s /opt/dotnet/1.1.5/dotnet /usr/bin/dotnet
+
+    mkdir /users /gpfs0 /gpfs1 /gpfs2 /well
+
+%runscript
+    exec dotnet /opt/canvas/Canvas.dll "$@"
